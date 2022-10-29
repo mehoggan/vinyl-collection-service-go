@@ -1,1 +1,1 @@
-# vinyl_collection_service_go
+# vinyl-collection-service-go
