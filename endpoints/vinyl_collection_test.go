@@ -19,7 +19,6 @@ func SetUpRouter() *gin.Engine {
 }
 
 func TestNew(t *testing.T) {
-	vc := NewVinylCollection()
 	expected := []types.Album{
 		{ID: "1",
 			Title:  "Blue Train",
@@ -33,9 +32,9 @@ func TestNew(t *testing.T) {
 			Title:  "Sarah Vaughan and Clifford Brown",
 			Artist: "Sarah Vaughan",
 			Price:  39.99}}
-	if !reflect.DeepEqual(vc.Albums, expected) {
-		t.Errorf("Actual albums of (%v) was not equal to that of (%v)", vc.Albums,
-			expected)
+	if !reflect.DeepEqual(collection.Albums, expected) {
+		t.Errorf("Actual albums of (%v) was not equal to that of (%v)",
+			collection.Albums, expected)
 	}
 }
 
@@ -61,9 +60,8 @@ func TestGetAlbumsHandler(t *testing.T) {
 			"artist": "Sarah Vaughan",
 			"price":  39.99}]`
 	t.Logf("Running TestGetAlbums...\n")
-	vc := NewVinylCollection()
 	router := SetUpRouter()
-	router.GET("/albums", vc.GetAlbumsHandler)
+	router.GET("/albums", GetAlbumsHandler)
 	request, _ := http.NewRequest("GET", "/albums", nil)
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)

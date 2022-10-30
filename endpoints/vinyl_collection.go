@@ -7,16 +7,10 @@ import (
 	"github.com/mehoggan/vinyl-collection-service-go/types"
 )
 
-type VinylCollection struct {
-	Albums []types.Album
-}
+var collection *types.VinylCollection
 
-func (vc VinylCollection) GetAlbumsHandler(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, vc.Albums)
-}
-
-func NewVinylCollection() *VinylCollection {
-	return &VinylCollection{Albums: []types.Album{
+func init() {
+	collection = &types.VinylCollection{Albums: []types.Album{
 		{ID: "1",
 			Title:  "Blue Train",
 			Artist: "John Coltrane",
@@ -29,4 +23,8 @@ func NewVinylCollection() *VinylCollection {
 			Title:  "Sarah Vaughan and Clifford Brown",
 			Artist: "Sarah Vaughan",
 			Price:  39.99}}}
+}
+
+func GetAlbumsHandler(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, collection.Albums)
 }
