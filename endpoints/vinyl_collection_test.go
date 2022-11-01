@@ -1,6 +1,8 @@
 package endpoints
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -16,6 +18,13 @@ import (
 func SetUpRouter() *gin.Engine {
 	router := gin.Default()
 	return router
+}
+
+func CleanString(str string) string {
+	str = strings.ReplaceAll(str, " ", "")
+	str = strings.ReplaceAll(str, "\n", "")
+	str = strings.ReplaceAll(str, "\t", "")
+	return str
 }
 
 func TestNew(t *testing.T) {
@@ -39,13 +48,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestGetAlbumsHandler(t *testing.T) {
-	var cleanString = func(str string) string {
-		str = strings.ReplaceAll(str, " ", "")
-		str = strings.ReplaceAll(str, "\n", "")
-		str = strings.ReplaceAll(str, "\t", "")
-		return str
-	}
-
 	expected := `[
 		{"id": "1",
 			"title":  "Blue Train",
@@ -67,6 +69,42 @@ func TestGetAlbumsHandler(t *testing.T) {
 	router.ServeHTTP(recorder, request)
 
 	response, _ := ioutil.ReadAll(recorder.Body)
-	assert.Equal(t, cleanString(string(expected)), cleanString(string(response)))
+	assert.Equal(t, CleanString(string(expected)), CleanString(string(response)))
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestPostAlbumHandler(t *testing.T) {
+	expected := `[
+		{"id": "1",
+			"title":  "Blue Train",
+			"artist": "John Coltrane",
+			"price":  56.99},
+		{"id": "2",
+			"title":  "Jeru",
+			"artist": "Gerry Mulligan",
+			"price":  17.99},
+		{"id": "3",
+			"title":  "Sarah Vaughan and Clifford Brown",
+			"artist": "Sarah Vaughan",
+			"price":  39.99},
+		{"id": "4",
+			"title": "The Modern Sound of Betty Carter",
+			"artist": "Betty Carter",
+			"price": 49.99}]`
+
+	t.Logf("Running TestPutAlbum...\n")
+	router := SetUpRouter()
+	router.POST("/albums", PostAlbumsHandler)
+	body := types.Album{ID: "4",
+		Title:  "The Modern Sound of Betty Carter",
+		Artist: "Betty Carter",
+		Price:  49.99}
+	jsonValue, _ := json.Marshal(body)
+	request, _ := http.NewRequest("POST", "/albums", bytes.NewBuffer(jsonValue))
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	response, _ := ioutil.ReadAll(recorder.Body)
+	assert.Equal(t, CleanString(string(expected)), CleanString(string(response)))
+	assert.Equal(t, http.StatusCreated, recorder.Code)
 }

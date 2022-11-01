@@ -28,3 +28,14 @@ func init() {
 func GetAlbumsHandler(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, collection.Albums)
 }
+
+func PostAlbumsHandler(c *gin.Context) {
+	var newAlbum types.Album
+
+	if err := c.BindJSON(&newAlbum); err != nil {
+		return
+	}
+
+	collection.Albums = append(collection.Albums, newAlbum)
+	c.IndentedJSON(http.StatusCreated, collection.Albums)
+}
